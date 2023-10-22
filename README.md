@@ -1,1 +1,1 @@
-# stores-rest-api-flask
+# Stores API using Flask
