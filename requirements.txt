@@ -6,3 +6,4 @@ flask-sqlalchemy==2.5.0
 flask-jwt-extended
 passlib
 flask-migrate
+gunicorn
