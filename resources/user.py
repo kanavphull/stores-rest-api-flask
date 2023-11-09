@@ -1,4 +1,3 @@
-from flask import current_app
 from flask.views import MethodView
 from flask_jwt_extended import (
     create_access_token,
@@ -40,9 +39,12 @@ class UserRegister(MethodView):
         db.session.add(user)
         db.session.commit()
 
-        current_app.queue.enqueue(
-            send_user_registration_email, user.email, user.username
-        )
+        send_user_registration_email(email=user.email, username=user.username)
+
+        # Uncomment this code to use background worker
+        # current_app.queue.enqueue(
+        #     send_user_registration_email, user.email, user.username
+        # )
 
         return {"message": "User Created Successfully"}, 201
 
