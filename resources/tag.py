@@ -14,6 +14,10 @@ blp = Blueprint("Tags", "tags", description="Operations on tags")
 class TagsInStore(MethodView):
     @blp.response(200, TagSchema(many=True))
     def get(self, store_id):
+        """Gets all tags in a particular Store
+
+        Returns all tags associated with a particular Store
+        """
         store = StoreModel.query.get_or_404(store_id)
         return store.tags.all()
 
@@ -21,6 +25,10 @@ class TagsInStore(MethodView):
     @blp.arguments(TagSchema)
     @blp.response(201, TagSchema)
     def post(self, tag_data, store_id):
+        """Creates a new Tag in a Store
+
+        Creates a new Tag in a particular Store
+        """
         tag = TagModel(**tag_data, store_id=store_id)
 
         try:
@@ -37,6 +45,10 @@ class LinkTagsToItem(MethodView):
     @jwt_required_with_doc()
     @blp.response(201, TagSchema)
     def post(self, item_id, tag_id):
+        """Associates a Tag to a particular Item
+
+        Creates a Link between a tag and an item (tags an Item).
+        """
         item = ItemModel.query.get_or_404(item_id)
         tag = TagModel.query.get_or_404(tag_id)
 
@@ -59,6 +71,10 @@ class LinkTagsToItem(MethodView):
     @jwt_required_with_doc(fresh=True)
     @blp.response(200, TagAndItemSchema)
     def delete(self, item_id, tag_id):
+        """Deletes Association between an Item and a Tag
+
+        Deletes the Link between Tag and Item (unTags an Item).
+        """
         item = ItemModel.query.get_or_404(item_id)
         tag = TagModel.query.get_or_404(tag_id)
 
@@ -77,6 +93,10 @@ class LinkTagsToItem(MethodView):
 class Tag(MethodView):
     @blp.response(200, TagSchema)
     def get(self, tag_id):
+        """Gets a Tag by ID
+
+        Returns tag by ID
+        """
         tag = TagModel.query.get_or_404(tag_id)
         return tag
 
@@ -92,6 +112,10 @@ class Tag(MethodView):
         description="Returned if the tag is assigned to one or more items. In this case, the tag is not Deleted.",
     )
     def delete(self, tag_id):
+        """Deletes tag by ID
+
+        Deletes a Tag based on ID
+        """
         tag = TagModel.query.get_or_404(tag_id)
 
         if not tag.items:

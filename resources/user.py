@@ -23,6 +23,10 @@ blp = Blueprint("User", "users", description="Operations on Users")
 class UserRegister(MethodView):
     @blp.arguments(UserRegisterSchema)
     def post(self, user_data):
+        """Registers a New User
+
+        Registers a New User with a Username, Password and Email.
+        """
         if UserModel.query.filter(
             or_(
                 UserModel.username == user_data["username"],
@@ -53,6 +57,12 @@ class UserRegister(MethodView):
 class UserLogin(MethodView):
     @blp.arguments(UserSchema)
     def post(self, user_data):
+        """Logs in User and Generates Access Tokens
+
+        Takes Username and Password and logs in a particular User. <br>
+        Returns an Access Token and a Refresh Token which can be used to
+        generate another non-fresh access token.
+        """
         user = UserModel.query.filter(
             UserModel.username == user_data["username"]
         ).first()
@@ -69,6 +79,12 @@ class UserLogin(MethodView):
 class TokenRefresh(MethodView):
     @jwt_required_with_doc(refresh=True)
     def post(self):
+        """Generates a non-Fresh Access Token using Refresh Token.
+
+        Generates a non-Fresh Access Token using a Refresh Token. <br>
+        This can be done only once. <br>
+        NON-Fresh Token cannot be used to Delete anything in the Database.
+        """
         current_user = get_jwt_identity()
         new_token = create_access_token(identity=current_user, fresh=False)
 
@@ -83,6 +99,10 @@ class TokenRefresh(MethodView):
 class UserLogout(MethodView):
     @jwt_required_with_doc()
     def post(self):
+        """Logs Out the User
+
+        Logs out the User rendering the Access Token invalid.
+        """
         jti = get_jwt()["jti"]
         BLOCKLIST.add(jti)
         return {"message": "Successfully logged out"}, 200
@@ -92,11 +112,19 @@ class UserLogout(MethodView):
 class User(MethodView):
     @blp.response(200, UserSchema)
     def get(self, user_id):
+        """Gets User by ID
+
+        Returns User Based on ID
+        """
         user = UserModel.query.get_or_404(user_id)
         return user
 
     @jwt_required_with_doc(fresh=True)
     def delete(self, user_id):
+        """Deletes a User
+
+        Deletes the Registration of a Particular User by ID.
+        """
         user = UserModel.query.get_or_404(user_id)
 
         db.session.delete(user)

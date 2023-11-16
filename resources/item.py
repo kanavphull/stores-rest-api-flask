@@ -25,6 +25,12 @@ class Item(MethodView):
     @blp.arguments(ItemUpdateSchema)
     @blp.response(200, ItemSchema)
     def put(self, item_data, item_id):
+        """Updates the name and price of a specific Item
+
+        Updates the name and price of an item with a particular item ID. <br>
+        If no item with that ID exists, it creates a new item with that ID, but for that,
+        associated store ID also needs to passed in request.
+        """
         item = ItemModel.query.get(item_id)
         if item:
             item.price = item_data["price"]
@@ -39,6 +45,10 @@ class Item(MethodView):
 
     @jwt_required_with_doc(fresh=True)
     def delete(self, item_id):
+        """Deletes Item by ID
+
+        Deletes items based on item IDs
+        """
         item = ItemModel.query.get(item_id)
         db.session.delete(item)
         db.session.commit()
@@ -49,12 +59,20 @@ class Item(MethodView):
 class ItemList(MethodView):
     @blp.response(200, ItemSchema(many=True))
     def get(self):
+        """Gets all Items
+
+        Returns all Items present in Database.
+        """
         return ItemModel.query.all()
 
     @jwt_required_with_doc()
     @blp.arguments(ItemSchema)
     @blp.response(201, ItemSchema)
     def post(self, item_data):
+        """Creates a new Item
+
+        Creates a new Item with a name, price and ID of associated Store.
+        """
         item = ItemModel(**item_data)
 
         try:
