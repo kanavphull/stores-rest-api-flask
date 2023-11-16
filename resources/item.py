@@ -10,7 +10,7 @@ from schemas import ItemSchema, ItemUpdateSchema
 blp = Blueprint("items", __name__, description="Operations on Items")
 
 
-@blp.route("/item/<string:item_id>")
+@blp.route("/item/<int:item_id>")
 class Item(MethodView):
     @blp.response(200, ItemSchema)
     def get(self, item_id):
@@ -22,12 +22,15 @@ class Item(MethodView):
         return item
 
     @jwt_required_with_doc()
-    @blp.arguments(ItemUpdateSchema)
+    @blp.arguments(
+        ItemUpdateSchema, example={"name": "Updated Item Name", "price": 14.69}
+    )
     @blp.response(200, ItemSchema)
     def put(self, item_data, item_id):
         """Updates the name and price of a specific Item
 
         Updates the name and price of an item with a particular item ID. <br>
+        Store ID associated with an Item cannot be changed. <br>
         If no item with that ID exists, it creates a new item with that ID, but for that,
         associated store ID also needs to passed in request.
         """

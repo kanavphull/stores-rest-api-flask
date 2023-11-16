@@ -10,7 +10,7 @@ from schemas import TagAndItemSchema, TagSchema
 blp = Blueprint("Tags", "tags", description="Operations on tags")
 
 
-@blp.route("/store/<string:store_id>/tag")
+@blp.route("/store/<int:store_id>/tag")
 class TagsInStore(MethodView):
     @blp.response(200, TagSchema(many=True))
     def get(self, store_id):
@@ -22,13 +22,17 @@ class TagsInStore(MethodView):
         return store.tags.all()
 
     @jwt_required_with_doc()
-    @blp.arguments(TagSchema)
+    @blp.arguments(TagSchema, example={"name": "Name of Tag"})
     @blp.response(201, TagSchema)
     def post(self, tag_data, store_id):
         """Creates a new Tag in a Store
 
         Creates a new Tag in a particular Store
         """
+
+        # checks whether the Store exists or not
+        StoreModel.get_or_404(store_id)
+
         tag = TagModel(**tag_data, store_id=store_id)
 
         try:
@@ -40,7 +44,7 @@ class TagsInStore(MethodView):
         return tag
 
 
-@blp.route("/item/<string:item_id>/tag/<string:tag_id>")
+@blp.route("/item/<int:item_id>/tag/<int:tag_id>")
 class LinkTagsToItem(MethodView):
     @jwt_required_with_doc()
     @blp.response(201, TagSchema)
@@ -89,7 +93,7 @@ class LinkTagsToItem(MethodView):
         return {"message": "Item Removed from Tag", "item": item, "tag": tag}
 
 
-@blp.route("/tag/<string:tag_id>")
+@blp.route("/tag/<int:tag_id>")
 class Tag(MethodView):
     @blp.response(200, TagSchema)
     def get(self, tag_id):
