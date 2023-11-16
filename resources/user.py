@@ -4,13 +4,13 @@ from flask_jwt_extended import (
     create_refresh_token,
     get_jwt,
     get_jwt_identity,
-    jwt_required,
 )
 from flask_smorest import Blueprint, abort
 from passlib.hash import pbkdf2_sha256
 from sqlalchemy import or_
 
 from blocklist import BLOCKLIST
+from custom_decorators import jwt_required_with_doc
 from db import db
 from models import UserModel
 from schemas import UserRegisterSchema, UserSchema
@@ -67,7 +67,7 @@ class UserLogin(MethodView):
 
 @blp.route("/refresh")
 class TokenRefresh(MethodView):
-    @jwt_required(refresh=True)
+    @jwt_required_with_doc(refresh=True)
     def post(self):
         current_user = get_jwt_identity()
         new_token = create_access_token(identity=current_user, fresh=False)
@@ -81,7 +81,7 @@ class TokenRefresh(MethodView):
 
 @blp.route("/logout")
 class UserLogout(MethodView):
-    @jwt_required()
+    @jwt_required_with_doc()
     def post(self):
         jti = get_jwt()["jti"]
         BLOCKLIST.add(jti)
@@ -95,6 +95,7 @@ class User(MethodView):
         user = UserModel.query.get_or_404(user_id)
         return user
 
+    @jwt_required_with_doc(fresh=True)
     def delete(self, user_id):
         user = UserModel.query.get_or_404(user_id)
 

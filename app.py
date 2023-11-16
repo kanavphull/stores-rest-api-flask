@@ -31,6 +31,21 @@ def create_app(db_url=None):
     app.config[
         "OPENAPI_SWAGGER_UI_URL"
     ] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
+
+    app.config["API_SPEC_OPTIONS"] = {
+        "components": {
+            "securitySchemes": {
+                "Bearer Auth": {
+                    "type": "apiKey",
+                    "in": "header",
+                    "name": "Authorization",
+                    "bearerFormat": "JWT",
+                    "description": "Enter: **'Bearer &lt;JWT&gt;'**, where JWT is the access token",
+                }
+            }
+        },
+    }
+
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url or os.getenv(
         "DATABASE_URL", "sqlite:///data.db"
     )
